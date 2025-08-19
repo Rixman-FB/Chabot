@@ -1,0 +1,6 @@
+Python
+venv/
+pycache/
+
+Environment variables
+.env
