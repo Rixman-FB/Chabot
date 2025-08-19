@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urheberrecht</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 20px; }
+        textarea { width: 100%; height: 150px; margin-bottom: 10px; }
+        #result { margin-top: 20px; padding: 15px; border: 1px solid #ccc; background-color: #f9f9f9; white-space: pre-wrap; }
+        .loading { display: none; }
+    </style>
+</head>
+<body>
+    <h1>German Copyright Law</h1>
+    <p><strong>Frage:</strong> During a holiday trip, you meet some people and have a good time with them. While talking about your work, you tell them
+about an idea for a film you are working on. It is set in the 80s and is about a man who has two families, one in West Berlin and one
+in East Berlin. After the fall of the wall, his (West) son and his (East) daughter meet by chance and fall in love.
+Two years later you see that Netflix has an upcoming series with exactly this core story.
+Has your copyright been infringed or not? Please explain your decision.</p>
+
+    <textarea id="learnerAnswer" placeholder="Enter here your answer..."></textarea>
+    <button onclick="submitAnswer()">Submit</button>
+
+    <div class="loading" id="loadingIndicator">Bewerte...</div>
+    <div id="result"></div>
+
+    <script>
+        async function submitAnswer() {
+            const learnerAnswer = document.getElementById('learnerAnswer').value;
+            const resultDiv = document.getElementById('result');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+
+            // Ladeanzeige einblenden und altes Ergebnis leeren
+            loadingIndicator.style.display = 'block';
+            resultDiv.innerText = '';
+
+            // Hier definieren Sie den Bewertungs-Prompt für die KI
+            const evaluationPrompt = `
+                You are an teacher for film students in their first academic year. Students should learn the basics of media law..Rate the student response to the question "During a holiday trip, you meet some people and have a good time with them. While talking about your work, you tell them about an idea for a film you are working on. It is set in the 80s and is about a man who has two families, one in West Berlin and one
+in East Berlin. After the fall of the wall, his (West) son and his (East) daughter meet by chance and fall in love. Two years later you see that Netflix has an upcoming series with exactly this core story. Has copyright been infringed or not? Please explain your decision.
+
+                **Bewertungskriterien:**
+                1.  **Infringement:** Was it correctly determined that copyright was not infringed?
+                2.  **Explanation:** Was it stated that ideas alone are not protected by German copyright?
+             
+
+                **Anweisungen für die Ausgabe:**
+                - Give brief, clear and constructive feedback.
+                - do not go into the details of Copyright law and definition
+                - Start with an overall rating (e.g. ‘Very good’, “Good”, ‘Partially correct’).
+                - Talk to the students directly
+                - Refer, if necessary, to section 2 of German Urhebergesetz and its definition of "protected works".
+                            `;
+
+            try {
+                // Sende die Daten an unser Backend
+                const response = await fetch('/evaluate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: evaluationPrompt,
+                        answer: learnerAnswer
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP-Fehler! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Zeige das Ergebnis von der KI an
+                resultDiv.innerText = data.evaluation;
+
+            } catch (error) {
+                resultDiv.innerText = 'Fehler bei der Auswertung: ' + error.message;
+            } finally {
+                // Ladeanzeige ausblenden
+                loadingIndicator.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
