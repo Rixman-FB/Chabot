@@ -3,11 +3,18 @@ import google.generativeai as genai
 from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
 
+# ... andere Importe
+from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS # 1. Importieren
+from dotenv import load_dotenv
+
+
 # .env-Datei laden, um den API-Key zugänglich zu machen
 load_dotenv()
 
 # Flask-App initialisieren
 app = Flask(__name__)
+CORS(app) # 2
 
 # Gemini API konfigurieren
 try:
